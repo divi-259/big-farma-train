@@ -151,16 +151,7 @@ export const refreshToken = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
-    res.status(200).json({
-      message: "Profile fetched successfully",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    res.json(req.user);
   } catch (error) {
     console.log("Error logging in", error.message); // To-Do: Remove later, only for development
     res.status(500).json({ message: error.message });
