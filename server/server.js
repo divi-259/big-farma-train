@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.route.js"; // need to add extension when i
 import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
 import paymentRoutes from "./routes/payment.route.js";
+import analyticsRoutes from "./routes/analytics.route.js";
 import { rateLimit } from "express-rate-limit";
 import { connectDB } from "./lib/db.js";
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

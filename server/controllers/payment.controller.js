@@ -32,6 +32,16 @@ export const createCheckoutSession = async (req, res) => {
       mode: "payment",
       success_url: `${process.env.CLIENT_URL}/purhcase-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL}/purchase-cancel`,
+      metadata: {
+        userId: req.user._id.toString(),
+        products: JSON.stringify(
+          products.map((p) => ({
+            id: p._id,
+            quantity: p.quantity,
+            price: p.price,
+          }))
+        ),
+      },
     });
   } catch (error) {
     console.log("Error in createCheckoutSession controller", error.message); // To-Do: Remove later, only for development
@@ -45,18 +55,6 @@ export const checkoutSuccess = async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid") {
-      if (session.metadata.couponCode) {
-        await Coupon.findOneAndUpdate(
-          {
-            code: session.metadata.couponCode,
-            userId: session.metadata.userId,
-          },
-          {
-            isActive: false,
-          }
-        );
-      }
-
       // create a new Order
       const products = JSON.parse(session.metadata.products);
       const newOrder = new Order({
@@ -80,12 +78,10 @@ export const checkoutSuccess = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error processing successful checkout:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error processing successful checkout",
-        error: error.message,
-      });
+    console.error("Error processing successful checkout", error);
+    res.status(500).json({
+      message: "Error processing successful checkout",
+      error: error.message,
+    });
   }
 };
